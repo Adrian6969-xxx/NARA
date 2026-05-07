@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HearMe Friends 🤟</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pastel: {
+              blue: '#A8D8EA',
+              yellow: '#FFF3B0',
+              mint: '#B5EAD7',
+              purple: '#C3B1E1',
+              pink: '#FFB6B9',
+              orange: '#FFDAB9',
+              bg: '#F0F4FF',
+              card: '#FFFFFF',
+            }
+          },
+          fontFamily: {
+            'nunito': ['Nunito', 'sans-serif'],
+            'fredoka': ['"Fredoka One"', 'cursive'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Nunito', sans-serif; }
+
+    /* Mascot Animation */
+    @keyframes mascotBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    @keyframes mascotWave {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(20deg); }
+      75% { transform: rotate(-10deg); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-8px) rotate(2deg); }
+      66% { transform: translateY(4px) rotate(-1deg); }
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1) rotate(180deg); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    @keyframes starBurst {
+      0% { transform: scale(0) rotate(0deg); opacity: 1; }
+      100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+    }
+    @keyframes confetti {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-60px) rotate(360deg); opacity: 0; }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.15); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.1); }
+    }
+    .mascot-bounce { animation: mascotBounce 2s ease-in-out infinite; }
+    .mascot-wave { animation: mascotWave 1.5s ease-in-out infinite; }
+    .float-anim { animation: float 4s ease-in-out infinite; }
+    .sparkle-anim { animation: sparkle 2s ease-in-out infinite; }
+    .slide-up { animation: slideUp 0.6s ease-out forwards; }
+    .slide-in { animation: slideIn 0.5s ease-out forwards; }
+    .heart-beat { animation: heartBeat 1.5s ease-in-out infinite; }
+    .shake { animation: shake 0.4s ease-in-out; }
+
+    .btn-hover {
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .btn-hover:hover {
+      transform: translateY(-4px) scale(1.03);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    .btn-hover:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+
+    .page-section {
+      display: none;
+      opacity: 0;
+    }
+    .page-section.active {
+      display: block;
+      animation: slideUp 0.4s ease-out forwards;
+    }
+
+    .progress-fill {
+      transition: width 0.5s ease;
+    }
+
+    .mic-btn.recording .pulse-ring {
+      animation: pulse-ring 1.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+
+    .sign-card {
+      transition: all 0.3s ease;
+    }
+    .sign-card:hover {
+      transform: rotateY(5deg) scale(1.05);
+    }
+    .sign-card.flipped .sign-front { display: none; }
+    .sign-card.flipped .sign-back { display: flex; }
+    .sign-card .sign-back { display: none; }
+
+    .game-card {
+      transition: all 0.4s ease;
+      transform-style: preserve-3d;
+    }
+    .game-card.matched {
+      opacity: 0.5;
+      pointer-events: none;
+      transform: scale(0.95);
+    }
+
+    .emotion-btn {
+      transition: all 0.3s ease;
+    }
+    .emotion-btn:hover {
+      transform: scale(1.15);
+    }
+    .emotion-btn.selected {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4);
+    }
+
+    .nav-item {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .nav-item::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: #6366f1;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+    .nav-item.active::after {
+      width: 80%;
+    }
+    .nav-item.active {
+      color: #6366f1;
+    }
+
+    .chat-bubble {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .star-reward {
+      transition: all 0.3s ease;
+    }
+    .star-reward.earned {
+      color: #FFD700;
+      transform: scale(1.2);
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #c3b1e1; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      transform: translateX(120%);
+      transition: transform 0.4s ease;
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .bubble-decoration {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .matching-grid .game-card .card-inner {
+      transition: transform 0.5s;
+      transform-style: preserve-3d;
+    }
+    .matching-grid .game-card.revealed .card-inner {
+      transform: rotateY(180deg);
+    }
+    .matching-grid .game-card .card-front,
+    .matching-grid .game-card .card-back {
+      backface-visibility: hidden;
+    }
+    .matching-grid .game-card .card-back {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="bg-pastel-bg min-h-screen font-nunito overflow-x-hidden">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast bg-white rounded-2xl shadow-xl px-6 py-4 flex items-center gap-3 max-w-sm">
+    <span id="toast-icon" class="text-2xl">⭐</span>
+    <span id="toast-msg" class="font-bold text-gray-700">Great job!</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg shadow-sm border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('home')">
+        <div class="w-10 h-10 bg-gradient-to-br from-pastel-purple to-pastel-blue rounded-xl flex items-center justify-center shadow-md">
+          <span class="text-xl">🤟</span>
+        </div>
+        <h1 class="font-fredoka text-xl md:text-2xl bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">HearMe Friends</h1>
+      </div>
+      <div class="hidden md:flex items-center gap-6">
+        <button onclick="navigateTo('home')" class="nav-item font-bold text-gray-500 hover:text-indigo-500 pb-1" data-nav="home">
+          <span class="flex items-center gap-1"><i data-lucide="home" class="w-4 h-4"></i> Home</span>
+        </button>
+        <button onclick="navigateTo('learn')" class="nav-item font-bold text-gray-500 hover:text-indigo-500 pb-1" data-nav="learn">
+          <span class="flex items-center gap-1"><i data-lucide="book-open" class="w-4 h-4"></i> Learn</span>
+        </button>
+        <button onclick="navigateTo('communicate')" class="nav-item font-bold text-gray-500 hover:text-indigo-500 pb-1" data-nav="communicate">
+          <span class="flex items-center gap-1"><i data-lucide="message-circle" class="w-4 h-4"></i> Talk</span>
+        </button>
+        <button onclick="navigateTo('play')" class="nav-item font-bold text-gray-500 hover:text-indigo-500 pb-1" data-nav="play">
+          <span class="flex items-center gap-1"><i data-lucide="gamepad-2" class="w-4 h-4"></i> Play</span>
+        </button>
+        <button onclick="navigateTo('emotions')" class="nav-item font-bold text-gray-500 hover:text-indigo-500 pb-1" data-nav="emotions">
+          <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> Feelings</span>
+        </button>
+      </div>
+      <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl hover:bg-gray-100 transition">
+        <i data-lucide="menu" class="w-6 h-6 text-gray-600"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="md:hidden hidden bg-white border-t border-gray-100 px-4 pb-4">
+      <div class="flex flex-col gap-2 pt-2">
+        <button onclick="navigateTo('home'); closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-pastel-blue/30 font-bold text-gray-600 transition">
+          <i data-lucide="home" class="w-5 h-5"></i> Home
+        </button>
+        <button onclick="navigateTo('learn'); closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-pastel-mint/30 font-bold text-gray-600 transition">
+          <i data-lucide="book-open" class="w-5 h-5"></i> Learn Sign Language
+        </button>
+        <button onclick="navigateTo('communicate'); closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-pastel-yellow/30 font-bold text-gray-600 transition">
+          <i data-lucide="message-circle" class="w-5 h-5"></i> Talk & Communicate
+        </button>
+        <button onclick="navigateTo('play'); closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-pastel-pink/30 font-bold text-gray-600 transition">
+          <i data-lucide="gamepad-2" class="w-5 h-5"></i> Play Games
+        </button>
+        <button onclick="navigateTo('emotions'); closeMobileMenu()" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-pastel-purple/30 font-bold text-gray-600 transition">
+          <i data-lucide="heart" class="w-5 h-5"></i> My Feelings
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ====== HOME PAGE ====== -->
+  <section id="page-home" class="page-section active">
+    <div class="relative overflow-hidden">
+      <!-- Decorative bubbles -->
+      <div class="bubble-decoration w-32 h-32 bg-pastel-blue top-20 left-10"></div>
+      <div class="bubble-decoration w-24 h-24 bg-pastel-yellow top-40 right-20"></div>
+      <div class="bubble-decoration w-16 h-16 bg-pastel-mint bottom-20 left-1/3"></div>
+      <div class="bubble-decoration w-20 h-20 bg-pastel-purple top-60 right-1/4"></div>
+
+      <!-- Hero Section -->
+      <div class="max-w-6xl mx-auto px-4 py-8 md:py-16">
+        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+          <!-- Mascot -->
+          <div class="mascot-bounce relative flex-shrink-0">
+            <div class="w-48 h-48 md:w-64 md:h-64 bg-gradient-to-br from-pastel-yellow to-pastel-orange rounded-full flex items-center justify-center shadow-2xl relative">
+              <div class="text-7xl md:text-8xl mascot-wave">🤟</div>
+              <!-- Sparkles -->
+              <div class="absolute -top-2 -right-2 sparkle-anim text-2xl" style="animation-delay: 0s;">✨</div>
+              <div class="absolute -bottom-1 -left-3 sparkle-anim text-xl" style="animation-delay: 0.7s;">⭐</div>
+              <div class="absolute top-4 -left-4 sparkle-anim text-lg" style="animation-delay: 1.4s;">💫</div>
+            </div>
+          </div>
+
+          <!-- Welcome Text -->
+          <div class="text-center md:text-left flex-1">
+            <h2 class="font-fredoka text-4xl md:text-5xl lg:text-6xl text-gray-800 mb-4 leading-tight">
+              Welcome to<br>
+              <span class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-400 bg-clip-text text-transparent">HearMe Friends!</span>
+            </h2>
+            <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-lg leading-relaxed">
+              A fun place to learn, play, and communicate! 🌈 Everyone is welcome here — let's explore the world together through signs, words, and smiles!
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap justify-center md:justify-start gap-4">
+              <button onclick="navigateTo('learn')" class="btn-hover bg-gradient-to-r from-indigo-400 to-purple-400 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-lg flex items-center gap-2">
+                <i data-lucide="book-open" class="w-6 h-6"></i> Learn
+              </button>
+              <button onclick="navigateTo('play')" class="btn-hover bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-lg flex items-center gap-2">
+                <i data-lucide="gamepad-2" class="w-6 h-6"></i> Play
+              </button>
+              <button onclick="navigateTo('communicate')" class="btn-hover bg-gradient-to-r from-emerald-400 to-teal-400 text-white font-bold px-8 py-4 rounded-2xl text-lg shadow-lg flex items-center gap-2">
+                <i data-lucide="message-circle" class="w-6 h-6"></i> Communicate
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 md:mt-20">
+          <div class="card-hover bg-white rounded-3xl p-6 shadow-md border-2 border-pastel-blue/30 cursor-pointer" onclick="navigateTo('learn')">
+            <div class="w-16 h-16 bg-pastel-blue/40 rounded-2xl flex items-center justify-center mb-4">
+              <span class="text-3xl">🤲</span>
+            </div>
+            <h3 class="font-fredoka text-xl text-gray-800 mb-2">Sign Language</h3>
+            <p class="text-gray-600">Learn the alphabet and everyday words in sign language with fun animated cards!</p>
+            <div class="mt-4 flex items-center gap-2 text-indigo-500 font-bold">
+              Start Learning <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+          <div class="card-hover bg-white rounded-3xl p-6 shadow-md border-2 border-pastel-mint/30 cursor-pointer" onclick="navigateTo('communicate')">
+            <div class="w-16 h-16 bg-pastel-mint/40 rounded-2xl flex items-center justify-center mb-4">
+              <span class="text-3xl">🎤</span>
+            </div>
+            <h3 class="font-fredoka text-xl text-gray-800 mb-2">Talk & Read</h3>
+            <p class="text-gray-600">Speak into the mic and see your words appear! Chat easily with friends and family.</p>
+            <div class="mt-4 flex items-center gap-2 text-emerald-500 font-bold">
+              Try It Out <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+          <div class="card-hover bg-white rounded-3xl p-6 shadow-md border-2 border-pastel-pink/30 cursor-pointer" onclick="navigateTo('play')">
+            <div class="w-16 h-16 bg-pastel-pink/40 rounded-2xl flex items-center justify-center mb-4">
+              <span class="text-3xl">🎮</span>
+            </div>
+            <h3 class="font-fredoka text-xl text-gray-800 mb-2">Fun Games</h3>
+            <p class="text-gray-600">Play matching games, quizzes, and earn stars while learning new things!</p>
+            <div class="mt-4 flex items-center gap-2 text-pink-500 font-bold">
+              Play Now <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== LEARN SIGN LANGUAGE PAGE ====== -->
+  <section id="page-learn" class="page-section">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <div class="text-center mb-8">
+        <h2 class="font-fredoka text-3xl md:text-4xl text-gray-800 mb-2">Learn Sign Language 🤲</h2>
+        <p class="text-gray-600 text-lg">Tap a card to see how to sign it! Learn at your own pace.</p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="max-w-md mx-auto mb-6">
+        <div class="relative">
+          <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          <input id="signSearch" type="text" placeholder="Search for a word..." 
+            class="w-full pl-12 pr-4 py-3 rounded-2xl border-2 border-gray-200 focus:border-indigo-400 focus:outline-none text-lg bg-white shadow-sm transition"
+            oninput="filterSignCards()">
+        </div>
+      </div>
+
+      <!-- Progress Tracker -->
+      <div class="bg-white rounded-2xl p-4 shadow-md mb-8 max-w-md mx-auto">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-bold text-gray-700 flex items-center gap-2">
+            <i data-lucide="trophy" class="w-5 h-5 text-yellow-400"></i> Progress
+          </span>
+          <span id="progressText" class="font-bold text-indigo-500">0 / 20</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+          <div id="progressBar" class="progress-fill h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="flex flex-wrap justify-center gap-3 mb-8">
+        <button onclick="setSignCategory('alphabet')" class="sign-cat-btn bg-indigo-100 text-indigo-700 font-bold px-5 py-2 rounded-xl transition hover:bg-indigo-200" data-cat="alphabet">🔤 Alphabet</button>
+        <button onclick="setSignCategory('greetings')" class="sign-cat-btn bg-gray-100 text-gray-600 font-bold px-5 py-2 rounded-xl transition hover:bg-gray-200" data-cat="greetings">👋 Greetings</button>
+        <button onclick="setSignCategory('feelings')" class="sign-cat-btn bg-gray-100 text-gray-600 font-bold px-5 py-2 rounded-xl transition hover:bg-gray-200" data-cat="feelings">😊 Feelings</button>
+        <button onclick="setSignCategory('animals')" class="sign-cat-btn bg-gray-100 text-gray-600 font-bold px-5 py-2 rounded-xl transition hover:bg-gray-200" data-cat="animals">🐾 Animals</button>
+      </div>
+
+      <!-- Sign Language Cards Grid -->
+      <div id="signCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <!-- Cards will be generated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== COMMUNICATE PAGE ====== -->
+  <section id="page-communicate" class="page-section">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+      <div class="text-center mb-8">
+        <h2 class="font-fredoka text-3xl md:text-4xl text-gray-800 mb-2">Talk & Communicate 🎤</h2>
+        <p class="text-gray-600 text-lg">Press the microphone and speak — your words will appear here!</p>
+      </div>
+
+      <!-- Chat Display Area -->
+      <div id="chatArea" class="bg-white rounded-3xl shadow-md border-2 border-gray-100 min-h-[300px] max-h-[450px] overflow-y-auto p-6 mb-6 space-y-4">
+        <div class="text-center text-gray-400 py-12">
+          <div class="text-6xl mb-4">💬</div>
+          <p class="text-lg font-bold">Tap the microphone to start talking!</p>
+          <p class="text-sm mt-2">Your words will appear here in real-time</p>
+        </div>
+      </div>
+
+      <!-- Microphone Button -->
+      <div class="flex flex-col items-center gap-4">
+        <div class="relative">
+          <button id="micBtn" onclick="toggleSpeechRecognition()" class="mic-btn relative w-24 h-24 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full shadow-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 z-10">
+            <i data-lucide="mic" class="w-10 h-10" id="micIcon"></i>
+          </button>
+          <div class="pulse-ring absolute inset-0 bg-pink-400 rounded-full opacity-0 pointer-events-none"></div>
+        </div>
+        <p id="micStatus" class="font-bold text-gray-500 text-lg">Tap to start listening</p>
+      </div>
+
+      <!-- Quick Phrases -->
+      <div class="mt-8">
+        <h3 class="font-bold text-gray-700 mb-3 text-center">Quick Phrases</h3>
+        <div class="flex flex-wrap justify-center gap-2">
+          <button onclick="addQuickPhrase('Hello! 👋')" class="btn-hover bg-pastel-blue/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">Hello! 👋</button>
+          <button onclick="addQuickPhrase('Thank you! 🙏')" class="btn-hover bg-pastel-mint/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">Thank you! 🙏</button>
+          <button onclick="addQuickPhrase('Yes ✅')" class="btn-hover bg-pastel-yellow/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">Yes ✅</button>
+          <button onclick="addQuickPhrase('No ❌')" class="btn-hover bg-pastel-pink/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">No ❌</button>
+          <button onclick="addQuickPhrase('Please 🙏')" class="btn-hover bg-pastel-purple/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">Please 🙏</button>
+          <button onclick="addQuickPhrase('I need help')" class="btn-hover bg-pastel-orange/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">I need help</button>
+          <button onclick="addQuickPhrase('I love this! ❤️')" class="btn-hover bg-pastel-pink/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">I love this! ❤️</button>
+          <button onclick="addQuickPhrase('Can you repeat that?')" class="btn-hover bg-pastel-blue/60 px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">Can you repeat that?</button>
+        </div>
+      </div>
+
+      <!-- Clear Button -->
+      <div class="text-center mt-6">
+        <button onclick="clearChat()" class="btn-hover bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-xl flex items-center gap-2 mx-auto">
+          <i data-lucide="trash-2" class="w-4 h-4"></i> Clear Chat
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== PLAY GAMES PAGE ====== -->
+  <section id="page-play" class="page-section">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <div class="text-center mb-8">
+        <h2 class="font-fredoka text-3xl md:text-4xl text-gray-800 mb-2">Fun Games! 🎮</h2>
+        <p class="text-gray-600 text-lg">Learn while playing — earn stars and have fun!</p>
+      </div>
+
+      <!-- Game Tabs -->
+      <div class="flex justify-center gap-3 mb-8">
+        <button onclick="setGame('matching')" class="game-tab-btn bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold px-6 py-3 rounded-2xl shadow-md transition" data-game="matching">
+          🃏 Matching Game
+        </button>
+        <button onclick="setGame('quiz')" class="game-tab-btn bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-2xl shadow-md transition" data-game="quiz">
+          🧠 Quiz
+        </button>
+      </div>
+
+      <!-- Stars Counter -->
+      <div class="flex justify-center mb-6">
+        <div class="bg-white rounded-2xl px-6 py-3 shadow-md flex items-center gap-3">
+          <span class="text-2xl">⭐</span>
+          <span id="starsCount" class="font-fredoka text-2xl text-yellow-500">0</span>
+          <span class="font-bold text-gray-500">Stars Earned</span>
+        </div>
+      </div>
+
+      <!-- Matching Game -->
+      <div id="game-matching" class="game-section">
+        <div class="text-center mb-4">
+          <p class="text-gray-600 font-bold">Match the sign with the correct word! Find all pairs to win.</p>
+          <div class="flex justify-center gap-4 mt-3">
+            <span class="text-sm font-bold text-gray-500">Moves: <span id="moveCount" class="text-indigo-500">0</span></span>
+            <button onclick="resetMatchingGame()" class="text-sm font-bold text-indigo-500 hover:text-indigo-700 flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset
+            </button>
+          </div>
+        </div>
+        <div id="matchingGrid" class="matching-grid grid grid-cols-3 md:grid-cols-4 gap-3 max-w-lg mx-auto">
+          <!-- Cards generated by JS -->
+        </div>
+      </div>
+
+      <!-- Quiz Game -->
+      <div id="game-quiz" class="game-section hidden">
+        <div id="quizContainer" class="max-w-lg mx-auto">
+          <!-- Quiz content generated by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== EMOTIONS PAGE ====== -->
+  <section id="page-emotions" class="page-section">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+      <div class="text-center mb-8">
+        <h2 class="font-fredoka text-3xl md:text-4xl text-gray-800 mb-2">My Feelings 💭</h2>
+        <p class="text-gray-600 text-lg">How are you feeling right now? Tap an emotion to express yourself!</p>
+      </div>
+
+      <!-- Emotion Selection -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+        <button onclick="selectEmotion('happy')" class="emotion-btn bg-pastel-yellow/50 hover:bg-pastel-yellow rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="happy">
+          <span class="text-5xl">😊</span>
+          <span class="font-bold text-gray-700 text-lg">Happy</span>
+        </button>
+        <button onclick="selectEmotion('sad')" class="emotion-btn bg-pastel-blue/50 hover:bg-pastel-blue rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="sad">
+          <span class="text-5xl">😢</span>
+          <span class="font-bold text-gray-700 text-lg">Sad</span>
+        </button>
+        <button onclick="selectEmotion('excited')" class="emotion-btn bg-pastel-pink/50 hover:bg-pastel-pink rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="excited">
+          <span class="text-5xl">🤩</span>
+          <span class="font-bold text-gray-700 text-lg">Excited</span>
+        </button>
+        <button onclick="selectEmotion('angry')" class="emotion-btn bg-pastel-orange/50 hover:bg-pastel-orange rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="angry">
+          <span class="text-5xl">😠</span>
+          <span class="font-bold text-gray-700 text-lg">Angry</span>
+        </button>
+        <button onclick="selectEmotion('scared')" class="emotion-btn bg-purple-100/50 hover:bg-purple-100 rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="scared">
+          <span class="text-5xl">😰</span>
+          <span class="font-bold text-gray-700 text-lg">Scared</span>
+        </button>
+        <button onclick="selectEmotion('loved')" class="emotion-btn bg-pastel-pink/50 hover:bg-pastel-pink rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="loved">
+          <span class="text-5xl">🥰</span>
+          <span class="font-bold text-gray-700 text-lg">Loved</span>
+        </button>
+        <button onclick="selectEmotion('confused')" class="emotion-btn bg-pastel-yellow/50 hover:bg-pastel-yellow rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="confused">
+          <span class="text-5xl">😕</span>
+          <span class="font-bold text-gray-700 text-lg">Confused</span>
+        </button>
+        <button onclick="selectEmotion('calm')" class="emotion-btn bg-pastel-mint/50 hover:bg-pastel-mint rounded-3xl p-6 flex flex-col items-center gap-3 border-2 border-transparent transition" data-emotion="calm">
+          <span class="text-5xl">😌</span>
+          <span class="font-bold text-gray-700 text-lg">Calm</span>
+        </button>
+      </div>
+
+      <!-- Emotion Detail Panel -->
+      <div id="emotionDetail" class="bg-white rounded-3xl shadow-lg p-8 text-center hidden max-w-md mx-auto">
+        <div id="emotionEmoji" class="text-7xl mb-4 heart-beat">😊</div>
+        <h3 id="emotionName" class="font-fredoka text-3xl text-gray-800 mb-3">Happy</h3>
+        <p id="emotionDesc" class="text-gray-600 text-lg mb-4">It's wonderful that you feel happy! Keep smiling and spread joy! 🌟</p>
+        <div id="emotionSign" class="bg-pastel-purple/20 rounded-2xl p-4 mb-4">
+          <p class="font-bold text-gray-700 text-sm mb-1">Sign Language for this:</p>
+          <p id="emotionSignText" class="font-fredoka text-2xl text-indigo-600">🤟 Happy</p>
+        </div>
+        <div class="flex justify-center gap-2 flex-wrap">
+          <button onclick="addQuickPhrase('I feel happy! 😊')" class="btn-hover bg-pastel-yellow px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">I feel this way!</button>
+          <button onclick="navigateTo('communicate')" class="btn-hover bg-pastel-blue px-4 py-2 rounded-xl font-bold text-gray-700 text-sm">Talk about it</button>
+        </div>
+      </div>
+
+      <!-- Daily Mood Tracker -->
+      <div class="mt-10 bg-white rounded-3xl shadow-md p-6 max-w-md mx-auto">
+        <h3 class="font-fredoka text-xl text-gray-800 mb-4 text-center">📊 My Mood Today</h3>
+        <div class="flex justify-between items-end" id="moodChart">
+          <!-- Filled by JS -->
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-gray-400 font-bold">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ===== GLOBALS =====
+    let currentPage = 'home';
+    let stars = 0;
+    let completedSigns = new Set();
+    let currentSignCategory = 'alphabet';
+    let isRecording = false;
+    let recognition = null;
+    let chatStarted = false;
+
+    // ===== SIGN LANGUAGE DATA =====
+    const signData = {
+      alphabet: [
+        { id: 'a', letter: 'A', sign: '✊', desc: 'Make a fist, thumb to the side', word: 'Apple' },
+        { id: 'b', letter: 'B', sign: '🤚', desc: 'Flat hand, fingers together pointing up', word: 'Ball' },
+        { id: 'c', letter: 'C', sign: '👌', desc: 'Curve your hand into a C shape', word: 'Cat' },
+        { id: 'd', letter: 'D', sign: '☝️', desc: 'Touch thumb to middle finger, index up', word: 'Dog' },
+        { id: 'e', letter: 'E', sign: '✊', desc: 'Fingers curled, thumb tucked under', word: 'Egg' },
+        { id: 'f', letter: 'F', sign: '👌', desc: 'Circle with index and thumb, other fingers up', word: 'Fish' },
+        { id: 'g', letter: 'G', sign: '👉', desc: 'Point index finger sideways', word: 'Grapes' },
+        { id: 'h', letter: 'H', sign: '✌️', desc: 'Two fingers pointing sideways', word: 'Hat' },
+        { id: 'i', letter: 'I', sign: '🤙', desc: 'Pinky finger up, rest in fist', word: 'Ice' },
+        { id: 'j', letter: 'J', sign: '🤙', desc: 'Pinky up, trace a J motion', word: 'Juice' },
+        { id: 'k', letter: 'K', sign: '✌️', desc: 'V between index and middle, thumb up', word: 'Kite' },
+        { id: 'l', letter: 'L', sign: '🤟', desc: 'L shape with thumb and index', word: 'Lion' },
+        { id: 'm', letter: 'M', sign: '✊', desc: 'Three fingers over thumb', word: 'Moon' },
+        { id: 'n', letter: 'N', sign: '✊', desc: 'Two fingers over thumb', word: 'Nest' },
+        { id: 'o', letter: 'O', sign: '🫰', desc: 'All fingers curve to touch thumb', word: 'Orange' },
+        { id: 'p', letter: 'P', sign: '👇', desc: 'Like K but pointing down', word: 'Penguin' },
+        { id: 'q', letter: 'Q', sign: '👇', desc: 'Like G but pointing down', word: 'Queen' },
+        { id: 'r', letter: 'R', sign: '🤞', desc: 'Cross your index and middle fingers', word: 'Rain' },
+        { id: 's', letter: 'S', sign: '✊', desc: 'Make a fist, thumb over fingers', word: 'Sun' },
+        { id: 't', letter: 'T', sign: '✊', desc: 'Thumb between index and middle', word: 'Tree' },
+      ],
+      greetings: [
+        { id: 'hello', letter: 'Hello', sign: '👋', desc: 'Wave your open hand', word: 'Hello' },
+        { id: 'hi', letter: 'Hi', sign: '✌️', desc: 'Peace sign / wave', word: 'Hi' },
+        { id: 'goodmorning', letter: 'Good Morning', sign: '🌅', desc: 'Right hand rises from left arm', word: 'Good Morning' },
+        { id: 'goodnight', letter: 'Good Night', sign: '🌙', desc: 'Hand moves down like setting sun', word: 'Good Night' },
+        { id: 'bye', letter: 'Bye Bye', sign: '👋', desc: 'Open and close fingers', word: 'Goodbye' },
+        { id: 'thankyou', letter: 'Thank You', sign: '🙏', desc: 'Touch chin with fingers, move forward', word: 'Thank You' },
+        { id: 'please', letter: 'Please', sign: '🙏', desc: 'Circular motion on chest', word: 'Please' },
+        { id: 'sorry', letter: 'Sorry', sign: '✊', desc: 'Circular motion on chest with fist', word: 'Sorry' },
+        { id: 'welcome', letter: "You're Welcome", sign: '🤗', desc: 'Open hand waves inward', word: "You're Welcome" },
+        { id: 'name', letter: 'My Name Is', sign: '✌️', desc: 'Two fingers tap on other two fingers', word: 'My Name Is...' },
+        { id: 'nicemeet', letter: 'Nice to Meet You', sign: '🤝', desc: 'Both index fingers move together', word: 'Nice to Meet You' },
+        { id: 'how', letter: 'How Are You?', sign: '🤙', desc: 'Both hands face up, fingers together, move up', word: 'How Are You?' },
+      ],
+      feelings: [
+        { id: 'happy', letter: 'Happy', sign: '😊', desc: 'Brush chest upward with flat hand', word: 'Happy' },
+        { id: 'sad', letter: 'Sad', sign: '😢', desc: 'Both hands move down your face', word: 'Sad' },
+        { id: 'angry', letter: 'Angry', sign: '😠', desc: 'Claw hand pulls away from face', word: 'Angry' },
+        { id: 'scared', letter: 'Scared', sign: '😨', desc: 'Both hands shake in front of body', word: 'Scared' },
+        { id: 'excited', letter: 'Excited', sign: '🤩', desc: 'Both hands shake, moving outward', word: 'Excited' },
+        { id: 'tired', letter: 'Tired', sign: '😴', desc: 'Drooping hand from chin to chest', word: 'Tired' },
+        { id: 'love', letter: 'Love', sign: '🤟', desc: 'Cross arms over chest', word: 'I Love You' },
+        { id: 'hungry', letter: 'Hungry', sign: '🍽️', desc: 'C-shaped hand moves down chest', word: 'Hungry' },
+        { id: 'sick', letter: 'Sick', sign: '🤒', desc: 'Both hands touch forehead', word: 'Sick' },
+        { id: 'fine', letter: 'Fine', sign: '👌', desc: 'Thumb taps on chest', word: "I'm Fine" },
+      ],
+      animals: [
+        { id: 'dog', letter: 'Dog', sign: '🐕', desc: 'Pat your leg and snap', word: 'Dog' },
+        { id: 'cat', letter: 'Cat', sign: '🐈', desc: 'Pinch and pull from cheek', word: 'Cat' },
+        { id: 'bird', letter: 'Bird', sign: '🐦', desc: 'Beak shape at mouth', word: 'Bird' },
+        { id: 'fish', letter: 'Fish', sign: '🐟', desc: 'Fish swimming motion', word: 'Fish' },
+        { id: 'bear', letter: 'Bear', sign: '🐻', desc: 'Claw hands cross chest', word: 'Bear' },
+        { id: 'rabbit', letter: 'Rabbit', sign: '🐰', desc: 'Two fingers like ears on head', word: 'Rabbit' },
+        { id: 'monkey', letter: 'Monkey', sign: '🐒', desc: 'Scratch under arms', word: 'Monkey' },
+        { id: 'cow', letter: 'Cow', sign: '🐄', desc: 'Fist at temple, open like horn', word: 'Cow' },
+        { id: 'horse', letter: 'Horse', sign: '🐴', desc: 'Thumb at temple, bend fingers', word: 'Horse' },
+        { id: 'butterfly', letter: 'Butterfly', sign: '🦋', desc: 'Link thumbs, flap hands like wings', word: 'Butterfly' },
+      ]
+    };
+
+    // ===== EMOTION DATA =====
+    const emotionData = {
+      happy: { emoji: '😊', name: 'Happy', desc: "It's wonderful that you feel happy! Keep smiling and spread joy! 🌟", sign: '😊 Brush chest upward with flat hand' },
+      sad: { emoji: '😢', name: 'Sad', desc: "It's okay to feel sad sometimes. Talk to someone you trust about how you feel. 💙", sign: '😢 Both hands move down your face' },
+      excited: { emoji: '🤩', name: 'Excited', desc: "Woohoo! Channel that excitement into something amazing! 🎉", sign: '🤩 Both hands shake, moving outward' },
+      angry: { emoji: '😠', name: 'Angry', desc: "Take deep breaths. It's okay to feel angry, but try to calm down. 🌈", sign: '😠 Claw hand pulls away from face' },
+      scared: { emoji: '😰', name: 'Scared', desc: "You're brave! Talk to someone safe about what scares you. 🛡️", sign: '😰 Both hands shake in front of body' },
+      loved: { emoji: '🥰', name: 'Loved', desc: "You ARE loved! Remember that always. You matter so much! ❤️", sign: '🤟 Cross arms over chest (I Love You)' },
+      confused: { emoji: '😕', name: 'Confused', desc: "Don't worry, it's okay to be confused! Ask for help — that's how we learn! 📚", sign: '😕 Point to your head and shake it' },
+      calm: { emoji: '😌', name: 'Calm', desc: "Peace and calm is a beautiful feeling. Enjoy this moment of peace. 🌿", sign: '😌 Hands sweep downward slowly' },
+    };
+
+    // ===== QUIZ DATA =====
+    const quizQuestions = [
+      { question: 'What sign is this? 👋', options: ['Hello', 'Thank You', 'Sorry', 'Please'], answer: 0 },
+      { question: 'How do you sign "I Love You"?', options: ['🤟', '👋', '✊', '🤚'], answer: 0 },
+      { question: 'What letter is this? ✊ (fist, thumb to side)', options: ['B', 'A', 'C', 'D'], answer: 1 },
+      { question: 'Which emoji shows "Thank You"?', options: ['👋', '🤙', '🙏', '✌️'], answer: 2 },
+      { question: 'How do you sign "Dog"?', options: ['Pinch cheek', 'Pat leg and snap', 'Beak at mouth', 'Claw hands'], answer: 1 },
+      { question: 'What does this mean? 🤚 (flat hand up)', options: ['Letter A', 'Letter B', 'Letter C', 'Letter D'], answer: 1 },
+      { question: 'How do you sign "Happy"?', options: ['Hands down face', 'Brush chest upward', 'Cross arms', 'Shake hands'], answer: 1 },
+      { question: 'What does ☝️ represent in sign language?', options: ['Letter A', 'Letter D', 'Letter I', 'Letter L'], answer: 1 },
+      { question: 'How do you say "Bye" in sign language?', options: ['🤟', '👋 open/close fingers', '🙏', '✌️ wave'], answer: 1 },
+      { question: 'What does crossing arms over chest mean?', options: ['Sad', 'Angry', 'I Love You', 'Scared'], answer: 2 },
+    ];
+
+    // ===== MATCHING GAME DATA =====
+    const matchingPairs = [
+      { emoji: '👋', word: 'Hello' },
+      { emoji: '🙏', word: 'Thank You' },
+      { emoji: '🤟', word: 'I Love You' },
+      { emoji: '😊', word: 'Happy' },
+      { emoji: '😢', word: 'Sad' },
+      { emoji: '🐕', word: 'Dog' },
+    ];
+
+    // ===== NAVIGATION =====
+    function navigateTo(page) {
+      // Hide all pages
+      document.querySelectorAll('.page-section').forEach(s => {
+        s.classList.remove('active');
+      });
+
+      // Show target page
+      const target = document.getElementById(`page-${page}`);
+      if (target) {
+        target.classList.add('active');
+      }
+
+      // Update nav items
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.nav === page) {
+          item.classList.add('active');
+        }
+      });
+
+      currentPage = page;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Initialize page-specific content
+      if (page === 'learn') initLearnPage();
+      if (page === 'play') initPlayPage();
+      if (page === 'emotions') initEmotionsPage();
+
+      lucide.createIcons();
+    }
+
+    function closeMobileMenu() {
+      document.getElementById('mobileMenu').classList.add('hidden');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg, icon = '⭐') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ===== LEARN PAGE =====
+    function initLearnPage() {
+      renderSignCards();
+    }
+
+    function setSignCategory(cat) {
+      currentSignCategory = cat;
+      document.querySelectorAll('.sign-cat-btn').forEach(btn => {
+        btn.className = btn.dataset.cat === cat
+          ? 'sign-cat-btn bg-indigo-100 text-indigo-700 font-bold px-5 py-2 rounded-xl transition hover:bg-indigo-200'
+          : 'sign-cat-btn bg-gray-100 text-gray-600 font-bold px-5 py-2 rounded-xl transition hover:bg-gray-200';
+      });
+      renderSignCards();
+    }
+
+    function renderSignCards() {
+      const grid = document.getElementById('signCardsGrid');
+      const search = document.getElementById('signSearch').value.toLowerCase();
+      const data = signData[currentSignCategory] || [];
+      const filtered = data.filter(d => d.letter.toLowerCase().includes(search) || d.word.toLowerCase().includes(search));
+
+      grid.innerHTML = filtered.map((item, i) => {
+        const completed = completedSigns.has(item.id);
+        return `
+          <div class="sign-card card-hover bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer ${completed ? 'ring-2 ring-green-400' : ''}" 
+               onclick="flipSignCard(this); markSignComplete('${item.id}')" style="animation-delay: ${i * 0.05}s">
+            <div class="sign-front p-4 text-center">
+              <div class="text-5xl mb-2">${item.sign}</div>
+              <h4 class="font-fredoka text-lg text-gray-800">${item.letter}</h4>
+              ${completed ? '<div class="mt-1 text-green-500 font-bold text-sm flex items-center justify-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> Learned!</div>' : '<div class="mt-1 text-gray-400 text-sm">Tap to learn</div>'}
+            </div>
+            <div class="sign-back p-4 text-center flex-col items-center justify-center">
+              <div class="text-4xl mb-2">${item.sign}</div>
+              <p class="text-sm font-bold text-indigo-600 mb-2">${item.desc}</p>
+              <p class="text-xs text-gray-500">Example: ${item.word}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateProgress();
+      lucide.createIcons();
+    }
+
+    function flipSignCard(el) {
+      el.classList.toggle('flipped');
+    }
+
+    function markSignComplete(id) {
+      if (!completedSigns.has(id)) {
+        completedSigns.add(id);
+        updateProgress();
+      }
+    }
+
+    function updateProgress() {
+      const total = Object.values(signData).reduce((s, arr) => s + arr.length, 0);
+      const done = completedSigns.size;
+      const pct = Math.round((done / total) * 100);
+      document.getElementById('progressText').textContent = `${done} / ${total}`;
+      document.getElementById('progressBar').style.width = pct + '%';
+    }
+
+    function filterSignCards() {
+      renderSignCards();
+    }
+
+    // ===== COMMUNICATE PAGE =====
+    function toggleSpeechRecognition() {
+      const micBtn = document.getElementById('micBtn');
+      const micStatus = document.getElementById('micStatus');
+
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showToast('Speech recognition not supported in this browser. Try Chrome!', '⚠️');
+        return;
+      }
+
+      if (isRecording) {
+        // Stop
+        if (recognition) recognition.stop();
+        isRecording = false;
+        micBtn.classList.remove('recording');
+        micBtn.style.background = '';
+        micStatus.textContent = 'Tap to start listening';
+        return;
+      }
+
+      // Start
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        isRecording = true;
+        micBtn.classList.add('recording');
+        micBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        micStatus.textContent = '🎙️ Listening... Tap to stop';
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          addChatBubble(transcript, 'user');
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed') {
+          showToast('Please allow microphone access!', '🎤');
+        }
+        stopRecording();
+      };
+
+      recognition.onend = () => {
+        if (isRecording) {
+          // Auto-restart if still supposed to be recording
+          try { recognition.start(); } catch(e) { stopRecording(); }
+        }
+      };
+
+      recognition.start();
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      const micBtn = document.getElementById('micBtn');
+      micBtn.classList.remove('recording');
+      micBtn.style.background = '';
+      document.getElementById('micStatus').textContent = 'Tap to start listening';
+    }
+
+    function addChatBubble(text, type = 'user') {
+      const chatArea = document.getElementById('chatArea');
+      if (!chatStarted) {
+        chatArea.innerHTML = '';
+        chatStarted = true;
+      }
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble flex ${type === 'user' ? 'justify-end' : 'justify-start'}`;
+      bubble.innerHTML = `
+        <div class="${type === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-800'} rounded-2xl px-5 py-3 max-w-[85%] shadow-sm">
+          <p class="text-lg font-bold leading-relaxed">${text}</p>
+          <p class="text-xs ${type === 'user' ? 'text-indigo-200' : 'text-gray-400'} mt-1">${time}</p>
+        </div>
+      `;
+      chatArea.appendChild(bubble);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function addQuickPhrase(text) {
+      addChatBubble(text, 'user');
+    }
+
+    function clearChat() {
+      const chatArea = document.getElementById('chatArea');
+      chatArea.innerHTML = `
+        <div class="text-center text-gray-400 py-12">
+          <div class="text-6xl mb-4">💬</div>
+          <p class="text-lg font-bold">Tap the microphone to start talking!</p>
+          <p class="text-sm mt-2">Your words will appear here in real-time</p>
+        </div>
+      `;
+      chatStarted = false;
+    }
+
+    // ===== PLAY PAGE =====
+    let matchingGameState = {
+      cards: [],
+      revealed: [],
+      matched: [],
+      moves: 0,
+      locked: false
+    };
+
+    function initPlayPage() {
+      setGame('matching');
+    }
+
+    function setGame(game) {
+      document.querySelectorAll('.game-section').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`game-${game}`).classList.remove('hidden');
+
+      document.querySelectorAll('.game-tab-btn').forEach(btn => {
+        if (btn.dataset.game === game) {
+          btn.className = 'game-tab-btn bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold px-6 py-3 rounded-2xl shadow-md transition';
+        } else {
+          btn.className = 'game-tab-btn bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-2xl shadow-md transition hover:bg-gray-300';
+        }
+      });
+
+      if (game === 'matching') resetMatchingGame();
+      if (game === 'quiz') initQuiz();
+    }
+
+    function resetMatchingGame() {
+      const cards = [];
+      matchingPairs.forEach((pair, idx) => {
+        cards.push({ id: idx * 2, pairId: idx, type: 'emoji', value: pair.emoji });
+        cards.push({ id: idx * 2 + 1, pairId: idx, type: 'word', value: pair.word });
+      });
+      // Shuffle
+      for (let i = cards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cards[i], cards[j]] = [cards[j], cards[i]];
+      }
+
+      matchingGameState = {
+        cards,
+        revealed: [],
+        matched: [],
+        moves: 0,
+        locked: false
+      };
+
+      renderMatchingGrid();
+      document.getElementById('moveCount').textContent = '0';
+    }
+
+    function renderMatchingGrid() {
+      const grid = document.getElementById('matchingGrid');
+      grid.innerHTML = matchingGameState.cards.map(card => `
+        <div class="game-card" data-card-id="${card.id}" data-pair-id="${card.pairId}" onclick="revealCard(${card.id})">
+          <div class="card-inner relative w-full" style="min-height: 90px;">
+            <div class="card-front absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-2xl flex items-center justify-center shadow-md cursor-pointer hover:shadow-lg transition">
+              <span class="text-3xl">❓</span>
+            </div>
+            <div class="card-back absolute inset-0 bg-white rounded-2xl flex items-center justify-center shadow-md border-2 ${card.type === 'emoji' ? 'border-pastel-blue' : 'border-pastel-mint'}">
+              <span class="${card.type === 'emoji' ? 'text-4xl' : 'font-fredoka text-lg text-gray-700'}">${card.value}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function revealCard(id) {
+      const state = matchingGameState;
+      if (state.locked) return;
+      if (state.revealed.includes(id)) return;
+      if (state.matched.includes(id)) return;
+
+      const cardEl = document.querySelector(`[data-card-id="${id}"]`);
+      cardEl.classList.add('revealed');
+      state.revealed.push(id);
+
+      if (state.revealed.length === 2) {
+        state.moves++;
+        document.getElementById('moveCount').textContent = state.moves;
+        state.locked = true;
+
+        const firstCard = state.cards.find(c => c.id === state.revealed[0]);
+        const secondCard = state.cards.find(c => c.id === state.revealed[1]);
+
+        if (firstCard.pairId === secondCard.pairId) {
+          // Match found!
+          state.matched.push(state.revealed[0], state.revealed[1]);
+          setTimeout(() => {
+            document.querySelectorAll(`[data-pair-id="${firstCard.pairId}"]`).forEach(el => {
+              el.classList.add('matched');
+              el.style.background = '#d1fae5';
+              el.querySelector('.card-inner').style.transform = '';
+            });
+            state.revealed = [];
+            state.locked = false;
+
+            // Check win
+            if (state.matched.length === state.cards.length) {
+              stars += 3;
+              document.getElementById('starsCount').textContent = stars;
+              showToast('You found all pairs! +3 ⭐', '🎉');
+            }
+          }, 500);
+        } else {
+          // No match
+          setTimeout(() => {
+            document.querySelectorAll(`[data-card-id="${state.revealed[0]}"], [data-card-id="${state.revealed[1]}"]`).forEach(el => {
+              el.classList.remove('revealed');
+            });
+            state.revealed = [];
+            state.locked = false;
+          }, 800);
+        }
+      }
+    }
+
+    // ===== QUIZ =====
+    let quizState = { current: 0, score: 0, answered: false };
+
+    function initQuiz() {
+      quizState = { current: 0, score: 0, answered: false };
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      if (quizState.current >= quizQuestions.length) {
+        // Quiz complete
+        const pct = Math.round((quizState.score / quizQuestions.length) * 100);
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl shadow-lg p-8 text-center">
+            <div class="text-6xl mb-4">${pct >= 70 ? '🏆' : '💪'}</div>
+            <h3 class="font-fredoka text-3xl text-gray-800 mb-2">Quiz Complete!</h3>
+            <p class="text-xl text-gray-600 mb-4">You got <span class="text-indigo-500 font-bold">${quizState.score}</span> out of <span class="font-bold">${quizQuestions.length}</span> correct!</p>
+            <div class="flex justify-center gap-1 mb-6">
+              ${Array(quizQuestions.length).fill(0).map((_, i) => `<span class="text-3xl ${i < quizState.score ? '' : 'grayscale opacity-30'}">⭐</span>`).join('')}
+            </div>
+            <button onclick="initQuiz()" class="btn-hover bg-gradient-to-r from-indigo-400 to-purple-400 text-white font-bold px-8 py-3 rounded-2xl text-lg">
+              Play Again 🔄
+            </button>
+          </div>
+        `;
+        if (pct >= 70) {
+          stars += 5;
+          document.getElementById('starsCount').textContent = stars;
+          showToast('Great quiz score! +5 ⭐', '🏆');
+        }
+        return;
+      }
+
+      const q = quizQuestions[quizState.current];
+      quizState.answered = false;
+
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl shadow-lg p-8">
+          <div class="flex justify-between items-center mb-4">
+            <span class="font-bold text-gray-400">Question ${quizState.current + 1} of ${quizQuestions.length}</span>
+            <span class="font-bold text-indigo-500">Score: ${quizState.score}</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div class="h-full bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full transition-all" style="width: ${((quizState.current) / quizQuestions.length) * 100}%"></div>
+          </div>
+          <h3 class="font-fredoka text-2xl text-gray-800 mb-6 text-center">${q.question}</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="quizOptions">
+            ${q.options.map((opt, i) => `
+              <button onclick="answerQuiz(${i})" class="quiz-option btn-hover bg-gray-50 border-2 border-gray-200 text-gray-700 font-bold px-4 py-4 rounded-2xl text-lg transition hover:border-indigo-400 hover:bg-indigo-50">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function answerQuiz(idx) {
+      if (quizState.answered) return;
+      quizState.answered = true;
+      const q = quizQuestions[quizState.current];
+      const options = document.querySelectorAll('.quiz-option');
+
+      options.forEach((opt, i) => {
+        opt.classList.remove('hover:border-indigo-400', 'hover:bg-indigo-50');
+        if (i === q.answer) {
+          opt.className = 'quiz-option bg-green-100 border-2 border-green-400 text-green-700 font-bold px-4 py-4 rounded-2xl text-lg';
+        } else if (i === idx && i !== q.answer) {
+          opt.className = 'quiz-option bg-red-100 border-2 border-red-400 text-red-700 font-bold px-4 py-4 rounded-2xl text-lg shake';
+        } else {
+          opt.className = 'quiz-option bg-gray-50 border-2 border-gray-100 text-gray-400 font-bold px-4 py-4 rounded-2xl text-lg';
+        }
+      });
+
+      if (idx === q.answer) {
+        quizState.score++;
+        showToast('Correct! 🎉', '✅');
+      } else {
+        showToast('Not quite! Keep trying! 💪', '❌');
+      }
+
+      setTimeout(() => {
+        quizState.current++;
+        renderQuiz();
+      }, 1500);
+    }
+
+    // ===== EMOTIONS PAGE =====
+    let selectedEmotion = null;
+
+    function initEmotionsPage() {
+      renderMoodChart();
+    }
+
+    function selectEmotion(emotion) {
+      selectedEmotion = emotion;
+      const data = emotionData[emotion];
+
+      // Update selected state
+      document.querySelectorAll('.emotion-btn').forEach(btn => {
+        btn.classList.remove('selected', 'border-indigo-400');
+        if (btn.dataset.emotion === emotion) {
+          btn.classList.add('selected', 'border-indigo-400');
+        }
+      });
+
+      // Show detail panel
+      const detail = document.getElementById('emotionDetail');
+      detail.classList.remove('hidden');
+      detail.style.animation = 'slideUp 0.4s ease-out';
+      document.getElementById('emotionEmoji').textContent = data.emoji;
+      document.getElementById('emotionName').textContent = data.name;
+      document.getElementById('emotionDesc').textContent = data.desc;
+      document.getElementById('emotionSignText').textContent = data.sign;
+
+      // Update mood chart
+      renderMoodChart();
+    }
+
+    function renderMoodChart() {
+      const chart = document.getElementById('moodChart');
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const moods = ['😢', '😕', '😌', '😊', '🤩'];
+      
+      // Generate random mood data for demo
+      chart.innerHTML = days.map((day, i) => {
+        const moodIdx = Math.floor(Math.random() * moods.length);
+        const height = 20 + moodIdx * 15;
+        const isToday = i === new Date().getDay() - 1;
+        return `
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <span class="text-lg">${moods[moodIdx]}</span>
+            <div class="w-6 rounded-full ${isToday ? 'bg-gradient-to-t from-indigo-400 to-purple-400' : 'bg-gray-200'}" style="height: ${height}px"></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ===== MOBILE MENU =====
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      navigateTo('home');
+    });
+  </script>
+<script src="https://deepsite.hf.co/deepsite-badge.js"></script>
+</body>
+</html>
